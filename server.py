@@ -3,6 +3,7 @@ import time
 import sys
 import fileinput
 from socket import *
+import os
 
 # processRequest is the thread code
 # - pass the connection object here
@@ -18,16 +19,24 @@ def processRequests(connectionSockets, addr):
 
 
 def stor(fileName, connectionSocket):
-	print('here')
+	if os.path.isfile(fileName):
+		connectionSocket.send('File already exists. Overwrite? Y/N'.encode())
+		answer = connectionSocket.recv(1024).decode()
+		if answer == 'N':
+			print('Aborting...')
+			return
+	else:
+		connectionSocket.send('Beginning upload'.encode())
 	f = open(fileName, 'w')
 	line = connectionSocket.recv(1024).decode()
 	while line:
+		if 'EOF' in line:
+			f.write(line.split('EOF')[0])
+			break
 		f.write(line)
 		line = connectionSocket.recv(1024).decode()
-		if line == 'fin':
-			break
 	f.close()
-	connectionSocket.send('File succesfully uploaded'.encode())
+	connectionSocket.send('ACK'.encode())
 
 
 # main execution follows:
