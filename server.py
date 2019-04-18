@@ -14,6 +14,8 @@ def processRequests(connectionSockets, addr):
 		command = args[0]
 		if command == 'STOR':
 			stor(args[1], connectionSocket)
+		elif command == 'GET':
+			get(args[1], connectionSocket)
 		else:
 			connectionSocket.send('Invalid command'.encode())
 
@@ -37,6 +39,19 @@ def stor(fileName, connectionSocket):
 		line = connectionSocket.recv(1024).decode()
 	f.close()
 	connectionSocket.send('ACK'.encode())
+
+def get(fileName, connectionSocket):
+	try:
+		f = open(fileName, 'r')
+		line = f.read(1024)
+		while line:
+			connectionSocket.send(line.encode())
+			line = f.read(1024)
+		connectionSocket.send('EOF'.encode())
+		f.close()
+	except IOError:
+		error = 'Unable to find file {}'.format(fileName)
+		connectionSocket.send(error.encode())
 
 
 # main execution follows:
