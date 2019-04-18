@@ -29,6 +29,10 @@ def stor(fileName, clientSocket):
         print('Successfully uploaded {}'.format(fileName))
     
 def get(fileName, clientSocket):
+    if os.path.isfile(fileName):
+        answer = input('Current copy of {} already exists. Overwrite? Y/N?\n'.format(fileName)).upper()
+        if answer == 'N':
+            return
     clientSocket.send('GET {}'.format(fileName).encode())
     line = clientSocket.recv(1024).decode()
     if line == 'Unable to find file {}'.format(fileName):
@@ -44,7 +48,6 @@ def get(fileName, clientSocket):
         line = clientSocket.recv(1024).decode()
     f.close()
     print('File acquired\n')
-
 
 
 serverName = 'localhost'
