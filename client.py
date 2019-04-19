@@ -60,6 +60,8 @@ while True:
     command = args[0]
     if command == 'STOR':
         stor(args[1], clientSocket)
-    elif command == "GET":
+    elif command == 'GET':
         get(args[1], clientSocket)
-    
+    elif command == 'LIST':
+        clientSocket.send('LIST'.encode())
+        print(clientSocket.recv(1024).decode())

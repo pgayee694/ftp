@@ -11,11 +11,16 @@ def processRequests(connectionSockets, addr):
 	while True:
 		message = connectionSocket.recv(1024).decode()
 		args = message.split()
-		command = args[0]
+		if len(args) == 0:
+			command = message
+		else:
+			command = args[0]
 		if command == 'STOR':
 			stor(args[1], connectionSocket)
 		elif command == 'GET':
 			get(args[1], connectionSocket)
+		elif command == 'LIST':
+			connectionSocket.send(str(os.listdir()).encode())
 		else:
 			connectionSocket.send('Invalid command'.encode())
 
@@ -41,15 +46,19 @@ def stor(fileName, connectionSocket):
 	connectionSocket.send('ACK'.encode())
 
 def get(fileName, connectionSocket):
-	try:
-		f = open(fileName, 'r')
-		line = f.read(1024)
-		while line:
-			connectionSocket.send(line.encode())
+	if os.path.isfile(fileName):
+		try:
+			f = open(fileName, 'r')
 			line = f.read(1024)
-		connectionSocket.send('EOF'.encode())
-		f.close()
-	except IOError:
+			while line:
+				connectionSocket.send(line.encode())
+				line = f.read(1024)
+			connectionSocket.send('EOF'.encode())
+			f.close()
+		except IOError:
+			error = 'Unable to find file {}'.format(fileName)
+			connectionSocket.send(error.encode())
+	else:
 		error = 'Unable to find file {}'.format(fileName)
 		connectionSocket.send(error.encode())
 
