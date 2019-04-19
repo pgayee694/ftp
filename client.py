@@ -49,6 +49,14 @@ def get(fileName, clientSocket):
     f.close()
     print('File acquired\n')
 
+def mkdir(directoryName, clientSocket):
+    clientSocket.send('MKDIR {}'.format(directoryName).encode())
+    response = clientSocket.recv(1024).decode()
+    if response != 'ACK':
+        print('Directory already exists. Aborting')
+    else:
+        print('Directory successfully created')
+
 
 serverName = 'localhost'
 serverPort = 21
@@ -65,3 +73,5 @@ while True:
     elif command == 'LIST':
         clientSocket.send('LIST'.encode())
         print(clientSocket.recv(1024).decode())
+    elif command == 'MKDIR':
+        mkdir(args[1], clientSocket)

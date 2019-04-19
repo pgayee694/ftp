@@ -21,6 +21,8 @@ def processRequests(connectionSockets, addr):
 			get(args[1], connectionSocket)
 		elif command == 'LIST':
 			connectionSocket.send(str(os.listdir()).encode())
+		elif command == 'MKDIR':
+			mkdir(args[1], connectionSocket)
 		else:
 			connectionSocket.send('Invalid command'.encode())
 
@@ -61,6 +63,14 @@ def get(fileName, connectionSocket):
 	else:
 		error = 'Unable to find file {}'.format(fileName)
 		connectionSocket.send(error.encode())
+
+def mkdir(directoryName, connectionSocket):
+	print('here')
+	if os.path.isdir(directoryName):
+		connectionSocket.send('Directory already exists'.encode())
+	else:
+		os.mkdir(directoryName)
+		connectionSocket.send('ACK'.encode())
 
 
 # main execution follows:
