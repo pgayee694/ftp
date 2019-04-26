@@ -57,6 +57,22 @@ def mkdir(directoryName, clientSocket):
     else:
         print('Directory successfully created')
 
+def chdir(directoryName, clientSocket):
+    clientSocket.send('CHDIR {}'.format(directoryName).encode())
+    response = clientSocket.recv(1024).decode()
+    if response != 'ACK':
+        print('Directory does not exist. Aborting')
+    else:
+        print('Changed to {}'.format(directoryName))
+
+def rmdir(directoryName, clientSocket):
+    clientSocket.send('RMDIR {}'.format(directoryName).encode())
+    response = clientSocket.recv(1024).decode()
+    if response != 'ACK':
+        print('Directory does not exist. Aborting')
+    else:
+        print('Deleted directory {}'.format(directoryName))
+
 
 serverName = 'localhost'
 serverPort = 21
@@ -75,3 +91,9 @@ while True:
         print(clientSocket.recv(1024).decode())
     elif command == 'MKDIR':
         mkdir(args[1], clientSocket)
+    elif command == 'CHDIR':
+        chdir(args[1], clientSocket)
+    elif command == 'RMDIR':
+        rmdir(args[1], clientSocket)
+    elif command == 'ABORT':
+        break

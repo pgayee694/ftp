@@ -23,6 +23,10 @@ def processRequests(connectionSockets, addr):
 			connectionSocket.send(str(os.listdir()).encode())
 		elif command == 'MKDIR':
 			mkdir(args[1], connectionSocket)
+		elif command == 'CHDIR':
+			chdir(args[1], connectionSocket)
+		elif command == 'RMDIR':
+			rmdir(args[1], connectionSocket)
 		else:
 			connectionSocket.send('Invalid command'.encode())
 
@@ -65,13 +69,25 @@ def get(fileName, connectionSocket):
 		connectionSocket.send(error.encode())
 
 def mkdir(directoryName, connectionSocket):
-	print('here')
 	if os.path.isdir(directoryName):
 		connectionSocket.send('Directory already exists'.encode())
 	else:
 		os.mkdir(directoryName)
 		connectionSocket.send('ACK'.encode())
 
+def chdir(directoryName, connectionSocket):
+	if not os.path.isdir(directoryName):
+		connectionSocket.send('No directoroy found'.encode())
+	else:
+		os.chdir(directoryName)
+		connectionSocket.send('ACK'.encode())
+
+def rmdir(directoryName, connectionSocket):
+	if not os.path.isdir(directoryName):
+		connectionSocket.send('No directory found'.encode())
+	else:
+		os.rmdir(directoryName)
+		connectionSocket.send('ACK'.encode())
 
 # main execution follows:
 serverPort = 21
